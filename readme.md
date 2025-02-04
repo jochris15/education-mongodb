@@ -95,3 +95,95 @@ db.users.deleteOne({name: "John Doe"})
 db.users.deleteMany({age: 24})
 ```
 
+# Demo with GraphQL
+Kita akan membuat aplikasi sederhana menggunakan GraphQL dan MongoDB. Aplikasi ini akan memiliki fitur CRUD (Create, Read, Update, Delete) untuk data user.
+
+Fokus ke folder :
+- start : Aplikasi awal GraphQL sebelum menggunakan MongoDB
+- end : Aplikasi GraphQL setelah menggunakan MongoDB
+
+[Dokumentasi Quickstart MongoDB with NodeJs](https://www.mongodb.com/docs/drivers/node/current/quick-start/)
+
+**Part 1 (Setup Connection)**
+1. Ikuti langkah yang ada di quick start untuk install MongoDB NodeJs Driver
+2. Buat file 'mongodb.js' yang akan berisi function untuk connect ke MongoDB
+```js
+import { MongoClient } from "mongodb";
+
+const uri = "Your MongoDB URI";
+let db = null
+let client = null
+
+function connect() {
+    try {
+        client = new MongoClient(uri);
+        db = client.db('lecture');
+
+        return db
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+// tujuan kita membuat 2 function adalah supaya ga ada multiple connection
+function getDB() {
+    if (!db) {
+        connect()
+    }
+
+    return db
+}
+
+export { connect, getDB }
+
+```
+
+**Part 2 (FindAll, FindOne user & create)**
+1. Buat folder models dan file User.js
+2. Buat class User yang berisi function findAll
+```js
+import { ObjectId } from "mongodb";
+import { getDB } from "../mongodb.js"
+
+export default class User {
+    static getCollection() {
+        const db = getDB()
+        const collection = db.collection('users');
+
+        return collection
+    }
+
+
+    static async findAll() {
+        const collection = User.getCollection()
+        // diconvert jadi array karena hasil datanya find adalah cursor
+        const users = await collection.find().toArray()
+
+        return users
+    }
+
+    static async findOne(userId) {
+        const collection = User.getCollection()
+
+        // karena userId type string, sedangkan id di mongoDb typenya ObjectId
+        const objectId = new ObjectId(userId)
+
+        const user = await collection.findOne({ _id: objectId })
+
+        if (!user) throw { name: "NotFound" }
+
+        return user
+    }
+
+    static async create(payload) {
+        const collection = User.getCollection()
+        await collection.insertOne(payload)
+
+        return "Succeed create new user"
+    }
+}
+
+
+```
+3. Buatlah type User dan tambahkan user di querynya di file index.js
+4. Import User di file index.js untuk digunakan di resolver
