@@ -35,37 +35,23 @@ const userTypeDefs = `#graphql
 const userResolvers = {
     Query: {
         users: async () => {
-            try {
-                const users = await User.findAll()
-                return users
-            } catch (error) {
-                throw new Error('Error fetching posts from the database');
-            }
-
+            const users = await User.findAll()
+            return users
         },
         user: async (parent, args, contextValue, info) => {
             const { userId } = args
-            try {
-                const user = await User.findOne(userId)
+            const user = await User.findOne(userId)
 
-                return user
-            } catch (error) {
-                throw new Error(`Error fetching post with ID: ${userId} from the database`);
-            }
-
-        },
+            return user
+        }
     },
     Mutation: {
         addUser: async (parent, args, contextValue, info) => {
-            try {
-                const { payload } = args
+            const { payload } = args
 
-                const message = await User.create(payload)
+            const message = await User.create(payload)
 
-                return message
-            } catch (error) {
-                throw new Error('Error creating a new post in the database');
-            }
+            return message
         }
     }
 };

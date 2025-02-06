@@ -26,7 +26,7 @@ export default class User {
 
         const user = await collection.findOne({ _id: objectId })
 
-        if (!user) throw { name: "NotFound" }
+        if (!user) throw new Error(`Error fetching post with ID: ${userId} from the database`)
 
         return user
     }
