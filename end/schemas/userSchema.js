@@ -33,27 +33,40 @@ const userTypeDefs = `#graphql
 
 // Resolver seperti controller (REST API), berisi semua logic yang berhubungan untuk mendapatkan datanya
 const userResolvers = {
-    Query: {
-        users: async () => {
-            const users = await User.findAll()
-            return users
-        },
-        user: async (parent, args, contextValue, info) => {
-            const { userId } = args
-            const user = await User.findOne(userId)
+  Query: {
+    users: async () => {
+      try {
+        const users = await User.findAll()
+        return users
+      } catch (error) {
+        throw error
+      }
 
-            return user
-        }
     },
-    Mutation: {
-        addUser: async (parent, args, contextValue, info) => {
-            const { payload } = args
+    user: async (parent, args, contextValue, info) => {
+      try {
+        const { userId } = args
+        const user = await User.findOne(userId)
 
-            const message = await User.create(payload)
-
-            return message
-        }
+        return user
+      } catch (error) {
+        throw error
+      }
     }
+  },
+  Mutation: {
+    addUser: async (parent, args, contextValue, info) => {
+      try {
+        const { payload } = args
+
+        const message = await User.create(payload)
+
+        return message
+      } catch (error) {
+        throw error
+      }
+    }
+  }
 };
 
 export { userTypeDefs, userResolvers }
